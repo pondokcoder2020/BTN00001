@@ -268,10 +268,32 @@
 					$(".global-sync-container").fadeOut();
 				}
 
-				/*Sync.onmessage = function(evt) {
-					var signalData = evt.data;
-					
-				}*/
+				Sync.onmessage = function(evt) {
+					var signalData = JSON.parse(evt.data);
+					var command = signalData.protocols;
+					var type = signalData.type;
+					var sender = signalData.sender;
+					var receiver = signalData.receiver;
+					var time = signalData.time;
+					var parameter = signalData.parameter;
+
+					if(command !== undefined && command !== null && command !== "") {
+						if(protocolLibGLOBAL[command] !== undefined) {
+							if(receiver == __ME__ || sender == __ME__ || receiver == "*") {
+								protocolLibGLOBAL[command](command, type, parameter, sender, receiver, time);
+							}
+						}
+					}
+				}
+
+				var protocolLibGLOBAL = {
+					akses_update: function(protocols, type, parameter, sender, receiver, time) {
+						if(sender != receiver) {
+							notification ("info", "Hak modul Anda sudah diupdate. Refresh halaman untuk akses baru", 3000, "hasil_modul_update");
+						} else {
+						}
+					}
+				};
 
 				Sync.onclose = function() {
 					$(".global-sync-container").fadeIn();
