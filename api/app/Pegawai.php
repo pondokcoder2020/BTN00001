@@ -676,6 +676,14 @@ class Pegawai extends Utility {
 
 					->execute();
 		}
+
+		//Update Session
+		if($_SESSION['uid'] == $parameter['uid']) {
+			$moduleSelectedMeta = self::get_module($parameter['uid']);
+			$_SESSION['akses_halaman'] = $moduleSelectedMeta['selected'];
+			$_SESSION['akses_halaman_link'] = $moduleSelectedMeta['selected_link'];
+			$_SESSION['akses_halaman_meta'] = $moduleSelectedMeta['selected_meta'];
+		}
 	}
 
 	private function update_access($parameter) {
