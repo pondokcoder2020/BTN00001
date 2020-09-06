@@ -117,6 +117,7 @@ class Modul extends Utility {
 
 
 	private function tambah_modul($parameter) {
+		//
 		return
 			self::$query
 				->insert('modul', array(

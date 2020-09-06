@@ -13,8 +13,8 @@
 
 				<!-- Navbar Brand -->
 				<a href="<?php echo __HOSTNAME__; ?>" class="navbar-brand ">
-					<img class="navbar-brand-icon" src="<?php echo __HOSTNAME__; ?>/template/assets/images/logo.png" width="60" height="40" alt="SIMRS PETALA BUMI">
-					SIMRS PETALA BUMI
+					<img class="navbar-brand-icon" src="<?php echo __HOSTNAME__; ?>/template/assets/images/logo.png" width="40" height="40" alt="SIMRS RSUD BINTAN">
+					&nbsp;&nbsp;SIMRS RSUD BINTAN
 					<span> <small>-Integrated</small></span>
 				</a>
 

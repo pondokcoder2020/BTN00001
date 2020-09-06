@@ -158,7 +158,7 @@
 </script>
 
 <div id="form-tambah" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modal-large-title" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-	<div class="modal-dialog modal-md bg-danger" role="document">
+	<div class="modal-dialog modal-md" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title" id="modal-large-title">Tambah Tindakan</h5>
@@ -170,6 +170,10 @@
 				<div class="form-group col-md-12">
 					<label for="txt_nama">Nama Tindakan :</label>
 					<input type="text" class="form-control" id="txt_nama" />
+				</div>
+				<div class="form-group col-md-12">
+					<label for="txt_harga">Kelas :</label>
+					<input type="text" class="form-control harga" id="txt_harga" />
 				</div>
 				<div class="form-group col-md-12">
 					<label for="txt_harga">Harga :</label>
