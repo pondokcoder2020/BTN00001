@@ -1,11 +1,35 @@
 <script type="text/javascript">
 	$(function(){
 		var MODE = "tambah", selectedUID;
+		var tindakanKelas = "RI";
+		//Generate class
+		function refresh_kelas() {
+			$.ajax({
+				url:__HOSTAPI__ + "/Tindakan/kelas/" + tindakanKelas,
+				beforeSend: function(request) {
+					request.setRequestHeader("Authorization", "Bearer " + <?php echo json_encode($_SESSION["token"]); ?>);
+				},
+				type:"GET",
+				success:function(response) {
+					var data = response.response_package.response_data;
+					for(var key in data) {
+						$("#table-tindakan thead tr").append("<th>" + data[key].nama + "</th>");
+					}
+					$("#table-tindakan thead tr").append("<th>Aksi</th>");
+				},
+				error: function(response) {
+					console.log(response);
+				}
+			});
+		}
+
+		refresh_kelas();
+		
 		
 		var tableTindakan = $("#table-tindakan").DataTable({
 			"ajax":{
 				async: false,
-				url: __HOSTAPI__ + "/Tindakan/rawat-jalan",
+				url: __HOSTAPI__ + "/Tindakan/get-harga-per-kelas/" + tindakanKelas,
 				type: "GET",
 				headers:{
 					Authorization: "Bearer " + <?php echo json_encode($_SESSION["token"]); ?>
@@ -13,6 +37,11 @@
 				dataSrc:function(response) {
 					return response.response_package.response_data;
 				}
+			},
+			scrollX: true,
+			scrollCollapse: true,
+			fixedColumns:   {
+				leftColumns: 1
 			},
 			autoWidth: false,
 			aaSorting: [[0, "asc"]],

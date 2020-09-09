@@ -289,8 +289,22 @@
 				var protocolLibGLOBAL = {
 					akses_update: function(protocols, type, parameter, sender, receiver, time) {
 						if(sender != receiver) {
-							notification ("info", "Hak modul Anda sudah diupdate. Refresh halaman untuk akses baru", 3000, "hasil_modul_update");
+							$.ajax({
+								url:__HOSTAPI__ + "/Pegawai",
+								beforeSend: function(request) {
+									request.setRequestHeader("Authorization", "Bearer " + <?php echo json_encode($_SESSION["token"]); ?>);
+								},
+								type:"POST",
+								data: {
+									"request": "refresh_pegawai_access",
+									"uid": __ME__
+								},
+								success:function(resp) {
+									notification ("info", "Hak modul Anda sudah diupdate. Refresh halaman untuk akses baru", 3000, "hasil_modul_update");
+								}
+							});
 						} else {
+							//
 						}
 					}
 				};

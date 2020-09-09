@@ -73,6 +73,9 @@ class Pegawai extends Utility {
 			case 'update_pegawai_access':
 				return self::update_pegawai_access($parameter);
 				break;
+			case 'refresh_pegawai_access':
+				return self::refresh_pegawai_access($parameter);
+				break;
 			default:
 				return array();
 				break;
@@ -684,6 +687,13 @@ class Pegawai extends Utility {
 			$_SESSION['akses_halaman_link'] = $moduleSelectedMeta['selected_link'];
 			$_SESSION['akses_halaman_meta'] = $moduleSelectedMeta['selected_meta'];
 		}
+	}
+
+	private function refresh_pegawai_access($parameter) {
+		$moduleSelectedMeta = self::get_module($parameter['uid']);
+		$_SESSION['akses_halaman'] = $moduleSelectedMeta['selected'];
+		$_SESSION['akses_halaman_link'] = $moduleSelectedMeta['selected_link'];
+		$_SESSION['akses_halaman_meta'] = $moduleSelectedMeta['selected_meta'];
 	}
 
 	private function update_access($parameter) {

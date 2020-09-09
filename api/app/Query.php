@@ -86,7 +86,8 @@ class Query {
 			}
 		}
 		foreach ($values as $key => $value) {
-			if($value == 'NULL'){
+			//if($value == 'NULL'){
+			if(is_null($value)){
 				array_push(self::$queryValues, '');
 			} else {
 				array_push(self::$queryValues, $value);
