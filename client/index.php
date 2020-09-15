@@ -12,6 +12,8 @@
 	var __HOST__ = <?php echo json_encode(__HOST__); ?>;
 	var __ME__ = <?php echo json_encode($_SESSION['uid']); ?>;
 
+	var __UIDPENJAMINUMUM__ = <?php echo json_encode(__UIDPENJAMINUMUM__); ?>;
+
 	var __GUDANG_APOTEK__ = <?php echo json_encode(__GUDANG_APOTEK__); ?>;
 </script>
 

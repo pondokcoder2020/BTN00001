@@ -136,7 +136,6 @@
 	<div class="global-sync-container blinker_dc">
 		<h4 class="text-center" style="font-family: Courier"><i class="fa fa-signal"></i><br /><br /><small>reconnecting</small></h4>
 	</div>
-	<div class="notification-container"></div>
 	<!-- <div id="app-settings">
 		<app-settings layout-active="default" :layout-location="{
 	  'default': 'index.html',
@@ -524,6 +523,7 @@
 			});
 		});
 	</script>
+	<div class="notification-container"></div>
 </body>
 
 </html>

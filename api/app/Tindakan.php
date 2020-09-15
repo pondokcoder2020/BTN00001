@@ -87,6 +87,15 @@ class Tindakan extends Utility {
 			case 'update_position':
 				return self::update_position($parameter);
 				break;
+
+			case 'tambah_tindakan_kelas_harga':
+				return self::tambah_tindakan_kelas_harga($parameter);
+				break;
+
+			case 'tambah_master_tindakan':
+				return self::tambah_master_tindakan($parameter);
+				break;
+
 			default:
 				# code...
 				break;
@@ -228,12 +237,12 @@ class Tindakan extends Utility {
 		$returnData = array();
 		$autonum = 1;
 		foreach ($kelas['response_data'] as $key => $value) {
-			//$Tindakan = self::get_tindakan_detail($value['tindakan']);
-
+			
 			$data = self::$query->select('master_tindakan_kelas_harga', array(
 				'id',
 				'tindakan',
 				'kelas',
+				'penjamin',
 				'harga',
 				'created_at',
 				'updated_at'
@@ -241,21 +250,35 @@ class Tindakan extends Utility {
 			->where(array(
 				'master_tindakan_kelas_harga.deleted_at' => 'IS NULL',
 				'AND',
-				'master_tindakan_kelas_harga.kelas' => '= ?'
+				'master_tindakan_kelas_harga.kelas' => '= ?',
+				'AND',
+				'master_tindakan_kelas_harga.penjamin' => '= ?'
 			), array(
-				$value['uid']
+				$value['uid'],
+				$parameter[3]
+			))
+			->order(array(
+				'master_tindakan_kelas_harga.tindakan' => 'ASC'
 			))
 			->execute();
 			//array_push($returnData, count($data['response_data']));
 			if(count($data['response_data']) > 0) {
-				$data['response_data'][0]['autonum'] = $autonum;
-				
-				//$data['response_data'][0]['tindakan'] = $Tindakan;
-				$data['response_data'][0]['harga'] = floatval($data['response_data'][0]['harga']);
-				
-				array_push($returnData, $data['response_data'][0]);
-				
-				$autonum++;
+				foreach ($data['response_data'] as $TKKey => $TKValue) {
+					$TKValue['autonum'] = $autonum;
+					
+					$Tindakan = self::get_tindakan_detail($TKValue['tindakan']);
+					$TKValue['tindakan_detail'] = $Tindakan['response_data'][0];
+
+					//Kelas Detail
+					$KelasDetail = self::get_kelas_tindakan_detail($TKValue['kelas']);
+					$TKValue['kelas'] = $KelasDetail['response_data'][0];
+
+					$TKValue['harga'] = floatval($TKValue['harga']);
+					
+					array_push($returnData, $TKValue);
+					
+					$autonum++;	
+				}
 			}
 		}
 
@@ -406,7 +429,7 @@ class Tindakan extends Utility {
 				)
 			)
 			->where(array(
-					'master_tindakan_kelas.deleted_at' => '= ?',
+					'master_tindakan_kelas.uid' => '= ?',
 					'AND',
 					'master_tindakan_kelas.deleted_at' => 'IS NULL'
 				), array($parameter)
@@ -491,6 +514,40 @@ class Tindakan extends Utility {
 	}
 
 	/*=====================- CRUD AREA -=======================*/
+	/*=====================- MASTER -=======================*/
+
+
+	private function tambah_master_tindakan($parameter) {
+		$check = self::duplicate_check(array(
+			'table' => 'master_tindakan',
+			'check' => $parameter['nama']
+		));
+
+		if (count($check['response_data']) > 0){
+			$check['response_message'] = 'Duplicate data detected';
+			$check['response_result'] = 0;
+			unset($check['response_data']);
+			return $check;
+		} else {
+			$uid = parent::gen_uuid();
+			$worker = self::$query->insert('master_tindakan', array(
+				'uid' => $uid,
+				'nama' => $parameter['nama'],
+				'created_at' => parent::format_date(),
+				'updated_at' => parent::format_date()
+			))
+			->returning("uid")
+			->execute();
+
+			return $worker;
+		}
+	}
+
+
+
+
+
+	/*=====================- MASTER -=======================*/
 	private function tambah_tindakan_rawat_jalan($parameter){
 		$Authorization = new Authorization();
 		$UserData = $Authorization::readBearerToken($parameter['access_token']);
@@ -722,7 +779,71 @@ class Tindakan extends Utility {
 		return $result;
 	}
 
-	private function edit_tindakan_rawat_inap($parameter){
+	private function tambah_tindakan_kelas_harga($parameter) {
+		$Authorization = new Authorization();
+		$UserData = $Authorization::readBearerToken($parameter['access_token']);
+		$workerList = array();
+		//Kerjakan Bos
+		foreach ($parameter['data'] as $key => $value) {	//List Penjamin
+			foreach ($value as $TKey => $TValue) { //List Tindakan
+				foreach ($TValue as $Kkey => $KValue) { //List Kelas
+					//key = uid penjamin
+					//TKey = uid tindakan
+					//Kkey = uid kelas
+					//KValue = harga
+					
+					//Check
+					$check = self::$query->select('master_tindakan_kelas_harga', array(
+						'id'
+					))
+					->where(array(
+						'master_tindakan_kelas_harga.tindakan' => '= ?',
+						'AND',
+						'master_tindakan_kelas_harga.kelas' => '= ?',
+						'AND',
+						'master_tindakan_kelas_harga.penjamin' => '= ?'
+					), array(
+						$TKey, $Kkey, $key
+					))
+					->execute();
+					if(floatval($KValue) > 0) {
+						if(count($check['response_data']) > 0) {
+							$worker = self::$query->update('master_tindakan_kelas_harga', array(
+								'deleted_at' => NULL,
+								'harga' => $KValue
+							))
+							->where(array(
+								'master_tindakan_kelas_harga.id' => '= ?',
+								'AND',
+								'master_tindakan_kelas_harga.tindakan' => '= ?',
+								'AND',
+								'master_tindakan_kelas_harga.kelas' => '= ?',
+								'AND',
+								'master_tindakan_kelas_harga.penjamin' => '= ?'
+							), array(
+								$check['response_data'][0]['id'], $TKey, $Kkey, $key
+							))
+							->execute();
+						} else {
+							$worker = self::$query->insert('master_tindakan_kelas_harga', array(
+								'tindakan' => $TKey,
+								'kelas' => $Kkey,
+								'harga' => floatval($KValue),
+								'penjamin' => $key,
+								'created_at' => parent::format_date(),
+								'updated_at' => parent::format_date()
+							))
+							->execute();
+						}
+						array_push($workerList, $worker);
+					}
+				}
+			}
+		}
+		return $workerList;
+	}
+
+	private function edit_tindakan_rawat_inap($parameter) {
 		$Authorization = new Authorization();
 		$UserData = $Authorization::readBearerToken($parameter['access_token']);
 		$result = [];
