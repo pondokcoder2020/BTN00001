@@ -51,6 +51,14 @@
 							Radiologi
 						</a>
 					</li>
+					<li class="nav-item">
+						<a href="#tab-fis" class="nav-link" data-toggle="tab" role="tab" aria-selected="false">
+							<span class="nav-link__count">
+								05
+							</span>
+							Fisioterapi
+						</a>
+					</li>
 				</ul>
 			</div>
 
@@ -171,6 +179,39 @@
 								<div class="col-md-12">
 									<br />
 									<table class="table table-bordered" id="table-kelas-radio-tindakan">
+										<thead class="thead-dark">
+											<tr>
+												<th class="wrap_content">No</th>
+												<th style="width: 50%;">Nama Kelas</th>
+												<th style="width: 20%;">Aksi</th>
+											</tr>
+										</thead>
+										<tbody>
+											
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="tab-pane show fade" id="tab-fis">
+					<div class="card">
+						<div class="card-header card-header-large bg-white d-flex align-items-center">
+							<h5 class="card-header__title flex m-0">Kelas Laboratorium</h5>
+						</div>
+						<div class="card-body tab-content">
+							<div class="row">
+								<div class="col-md-9">
+								</div>
+								<div class="col-md-3">
+									<button class="btn btn-sm btn-info tambah-tindakan" cat="fis">
+										<i class="fa fa-plus"></i> Tambah Kelas Tindakan Fisioterapi
+									</button>
+								</div>
+								<div class="col-md-12">
+									<br />
+									<table class="table table-bordered" id="table-kelas-fis-tindakan">
 										<thead class="thead-dark">
 											<tr>
 												<th class="wrap_content">No</th>

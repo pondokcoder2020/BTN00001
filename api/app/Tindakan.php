@@ -232,6 +232,9 @@ class Tindakan extends Utility {
 		), array(
 			$parameter[2]
 		))
+		->order(array(
+			'master_tindakan_kelas.created_at' => 'ASC'
+		))
 		->execute();
 
 		$returnData = array();
@@ -258,7 +261,7 @@ class Tindakan extends Utility {
 				$parameter[3]
 			))
 			->order(array(
-				'master_tindakan_kelas_harga.tindakan' => 'ASC'
+				'master_tindakan_kelas_harga.created_at' => 'ASC'
 			))
 			->execute();
 			//array_push($returnData, count($data['response_data']));

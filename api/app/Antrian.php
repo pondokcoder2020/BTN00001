@@ -328,6 +328,7 @@ class Antrian extends Utility {
 			$SInvoice = new Invoice(self::$pdo);
 			$HargaKartu = $SInvoice::get_harga_tindakan(array(
 				'poli' => $parameter['dataObj']['departemen'],
+				'kelas' => __UID_KELAS_GENERAL_RJ__,
 				'tindakan' => __UID_KARTU__,
 				'penjamin' => $parameter['dataObj']['penjamin']
 			));
@@ -402,6 +403,7 @@ class Antrian extends Utility {
 
 					$HargaTindakan = $SInvoice::get_harga_tindakan(array(
 						'poli' => $parameter['dataObj']['departemen'],
+						'kelas' => __UID_KELAS_GENERAL_RJ__,
 						'tindakan' => __UID_KONSULTASI__,
 						'penjamin' => $parameter['dataObj']['penjamin']
 					));
@@ -460,6 +462,7 @@ class Antrian extends Utility {
 
 						$HargaTindakan = $SInvoice::get_harga_tindakan(array(
 							'poli' => $parameter['dataObj']['departemen'],
+							'kelas' => __UID_KELAS_GENERAL_RJ__,
 							'tindakan' => __UID_KONSULTASI__,
 							'penjamin' => $parameter['dataObj']['penjamin']
 						));
@@ -533,6 +536,7 @@ class Antrian extends Utility {
 					
 				$HargaTindakan = $SInvoice::get_harga_tindakan(array(
 					'poli' => $parameter['dataObj']['departemen'],
+					'kelas' => __UID_KELAS_GENERAL_RJ__,
 					'tindakan' => __UID_KONSULTASI__,
 					'penjamin' => $parameter['dataObj']['penjamin']
 				));

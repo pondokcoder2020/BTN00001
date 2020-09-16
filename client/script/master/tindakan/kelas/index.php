@@ -161,6 +161,89 @@
 				}
 			});
 		});
+
+
+
+
+
+
+		var tableTindakanFis = $("#table-kelas-fis-tindakan").DataTable({
+			ajax:{
+				async: false,
+				url: __HOSTAPI__ + "/Tindakan/kelas/FIS",
+				type: "GET",
+				headers:{
+					Authorization: "Bearer " + <?php echo json_encode($_SESSION["token"]); ?>
+				},
+				dataSrc:function(response) {
+					return response.response_package.response_data;
+				}
+			},
+			autoWidth: false,
+			rowReorder: {
+				dataSrc: "autonum"
+			},
+			columns : [
+				{
+					"data" : "autonum", render: function(data, type, row, meta) {
+						return "<i class=\"fa fa-arrows-alt\"></i> " + row["autonum"];
+					}
+				},
+				{
+					"data" : null, render: function(data, type, row, meta) {
+						return "<span id=\"nama_" + row["uid"] + "\">" + row["nama"] + "</span>";
+					}
+				},
+				{
+					"data" : null, render: function(data, type, row, meta) {
+						return "<div class=\"btn-group\" role=\"group\" aria-label=\"Basic example\">" +
+									"<button class=\"btn btn-info btn-sm btn-edit-tindakan\" id=\"tindakan_edit_" + row["uid"] + "\" cat=\"rj\"" +
+										"<i class=\"fa fa-edit\"></i> Edit" +
+									"</button>" +
+									"<button id=\"tindakan_delete_" + row['uid'] + "\" class=\"btn btn-danger btn-sm btn-delete-tindakan\" cat=\"rj\">" +
+										"<i class=\"fa fa-trash\"></i> Hapus" +
+									"</button>" +
+								"</div>";
+					}
+				}
+			]
+		});
+
+		tableTindakanFis.on( 'row-reorder', function ( e, diff, edit ) {
+			var result = [];
+			
+			for (var i = 0, ien = diff.length ; i < ien ; i++ ) {
+				var rowData = tableTindakanFis.row(diff[i].node).data();
+				result.push({
+					"uid": rowData.uid,
+					"position": (diff[i].newPosition + 1)
+				});
+			}
+
+			$.ajax({
+				async: false,
+				url: __HOSTAPI__ + "/Tindakan",
+				data: {
+					request: "update_position",
+					jenis: "RJ",
+					data:result
+				},
+				beforeSend: function(request) {
+					request.setRequestHeader("Authorization", "Bearer " + <?php echo json_encode($_SESSION["token"]); ?>);
+				},
+				type: "POST",
+				success: function(response) {
+					if(response.response_package > 0) {
+						notification ("success", "Kelas berhasil diurutkan", 3000, "kelas_tindakan_result");
+					} else {
+						notification ("danger", "Kelas tindakan gagal diurutkan", 3000, "kelas_tindakan_result");
+					}
+				},
+				error: function(response) {
+					console.log(response);
+				}
+			});
+		});
 		
 
 
@@ -357,6 +440,14 @@
 						if(response.response_package.response_result > 0) {
 							if(cat == "ri") {
 								tableTindakanRI.ajax.reload();
+							} else if(cat == "rj") {
+								tableTindakanRJ.ajax.reload();
+							} else if(cat == "lab") {
+								tableTindakanLab.ajax.reload();
+							} else if(cat == "rad") {
+								tableTindakanRadio.ajax.reload();
+							} else if(cat == "fis") {
+								tableTindakanFis.ajax.reload();
 							} else {
 								tableTindakanRJ.ajax.reload();
 							}
@@ -435,6 +526,8 @@
 								tableTindakanLab.ajax.reload();
 							} else if(cat == "rad") {
 								tableTindakanRadio.ajax.reload();
+							} else if(cat == "rad") {
+								tableTindakanFis.ajax.reload();
 							} else {
 								tableTindakanRI.ajax.reload();
 							}

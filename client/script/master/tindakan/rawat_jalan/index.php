@@ -87,6 +87,25 @@
 				},
 				type:"GET",
 				success:function(response) {
+
+					var data = response.response_package.response_data;
+					for(var key in data) {
+						if(columnKelas[data[key].nama.replace(" ", "_").toLowerCase()] == undefined) {
+							columnKelas[data[key].nama.replace(" ", "_").toLowerCase()] = 0;
+						}
+						generateHeader.push({
+							"uid": data[key].uid,
+							"title" : data[key].nama,
+							"data": data[key].nama.replace(" ", "_").toLowerCase()
+						});
+					}
+
+					generateHeader.push({
+						"title" : "Aksi",
+						"data": "action"
+					});
+
+
 					$.ajax({
 						url: __HOSTAPI__ + "/Tindakan/get-harga-per-kelas/" + tindakanKelas + "/" + $("#filter-penjamin").val(),
 						async: false,
@@ -98,43 +117,50 @@
 							var DataPopulator = {};
 							var DataPopulatorParsed = [];
 
+
 							//Parse data from vertical to horizontal
 							var data_harga = response.response_package;
 
-							for(var key in data_harga) {
-								var tempColumn = {};
-								for(var z in columnKelas) {
-									tempColumn[z] = data_harga[key].harga;
+							for(var key = 0; key < data_harga.length; key++) {
+								var kelasTarget = data_harga[key].tindakan;
+								
+								if(DataPopulator[kelasTarget] === undefined) {
+									DataPopulator[kelasTarget] = {
+										uid: kelasTarget,
+										nama: data_harga[key].tindakan_detail.nama
+									};
+
+									if(DataPopulator[kelasTarget].kelas_harga == undefined) {
+										DataPopulator[kelasTarget].kelas_harga = columnKelas;
+									}
 								}
 
-								if(DataPopulator[data_harga[key].tindakan] == undefined) {
-									DataPopulator[data_harga[key].tindakan] = {
-										uid: data_harga[key].tindakan,
-										nama: data_harga[key].tindakan_detail.nama,
-										kelas_harga: tempColumn
-									};
+								var kelasKey = data_harga[key].kelas.nama.toLowerCase().replace(" ", "_");
+								if(kelasKey in DataPopulator[kelasTarget].kelas_harga) {
+									DataPopulator[kelasTarget][kelasKey] = data_harga[key].harga;
 								}
 							}
-
+							
 							//Convert to array data
 							var autonum = 1;
 							for(var key in DataPopulator) {
 								var parseKelas = {
 									autonum: autonum,
-									tindakan: DataPopulator[key].nama,
+									tindakan: "<label id=\"tindakan_" + DataPopulator[key].uid + "\">" + DataPopulator[key].nama + "</label>",
 									tindakan_uid : DataPopulator[key].uid,
-									action: "<button class=\"btn btn-info btn-sm\"><i class=\"fa fa-pencil-alt\"></i></button>"
+									action: "<button class=\"btn btn-info btn-sm btn-edit-tindakan\" tindakan=\"" + DataPopulator[key].uid + "\"><i class=\"fa fa-pencil-alt\"></i></button>"
 								};
 
-								for(var KelasKey in DataPopulator[key].kelas_harga) {
-									if(parseKelas[KelasKey] == undefined) {
-										parseKelas[KelasKey] = "<h6 class=\"text-right\">" + number_format(DataPopulator[key].kelas_harga[KelasKey], 2, ".", ",") + "</h6>";
+								for(var KelasKey in DataPopulator[key]) {
+									if(KelasKey in columnKelas) {
+										parseKelas[KelasKey] = "<h6 class=\"text-right\">" + number_format(DataPopulator[key][KelasKey], 2, ".", ",") + "</h6>";
 									}
 								}
 
 								DataPopulatorParsed.push(parseKelas);
 								autonum++;
 							}
+
 							dataBuilder = DataPopulator;
 						}
 					});
@@ -145,6 +171,7 @@
 
 
 
+		
 
 
 
@@ -228,19 +255,15 @@
 											DataPopulator[kelasTarget][kelasKey] = data_harga[key].harga;
 										}
 									}
-
-
-									console.log(DataPopulator);
-
-
+									
 									//Convert to array data
 									var autonum = 1;
 									for(var key in DataPopulator) {
 										var parseKelas = {
 											autonum: autonum,
-											tindakan: DataPopulator[key].nama,
+											tindakan: "<label id=\"tindakan_" + DataPopulator[key].uid + "\">" + DataPopulator[key].nama + "</label>",
 											tindakan_uid : DataPopulator[key].uid,
-											action: "<button class=\"btn btn-info btn-sm\"><i class=\"fa fa-pencil-alt\"></i></button>"
+											action: "<button class=\"btn btn-info btn-sm btn-edit-tindakan\" tindakan=\"" + DataPopulator[key].uid + "\"><i class=\"fa fa-pencil-alt\"></i></button>"
 										};
 
 										for(var KelasKey in DataPopulator[key]) {
@@ -275,12 +298,64 @@
 					console.log(response);
 				}
 			});
+
 			return {
 				table: tableTindakan,
 				dataKelas: generateHeader,
 				dataBuilder: dataBuilder
 			};
 		}
+
+
+		$("body").on("click", ".btn-edit-tindakan", function() {
+			var uid = $(this).attr("tindakan");
+
+			tindakanBuilder = refresh_tindakan("#txt_tindakan", uid);
+			$("#txt_tindakan").attr("disabled", "disabled");
+			dataBuilder = refresh_kelas_data(tindakanKelas);
+			var tempDataBuilder = dataBuilder;
+
+			/*$("#txt_tindakan option[value=\"" + uid + "\"").prop("selected", true);
+			$("#txt_tindakan").val(uid).trigger("change");
+			$("#txt_tindakan").parent().html("<h4>" + $("#tindakan_" + uid).html() + "</h4>");*/
+			
+			$("#form-tambah table tbody").html("");
+
+			for(var i in columnBuilder) {
+
+				if(
+					columnBuilder[i].data != "autonum" &&
+					columnBuilder[i].data != "tindakan" &&
+					columnBuilder[i].data != "action"
+				) {
+					var newRow = document.createElement("TR");
+					var newName = document.createElement("TD");
+					var newPrice = document.createElement("TD");
+
+					$(newName).html(columnBuilder[i].title);
+
+					var newInput = document.createElement("INPUT");
+					$(newInput).addClass("form-control harga-tindakan").val(tempDataBuilder[$("#txt_tindakan").val()][columnBuilder[i].data.replace(" ", "_").toLowerCase()]).attr({
+						"kelas": columnBuilder[i].uid,
+						"identifier": columnBuilder[i].data.replace(" ", "_").toLowerCase()
+					}).inputmask({
+						alias: 'currency', rightAlign: true, placeholder: "0,00", prefix: "", autoGroup: false, digitsOptional: true
+					});
+
+					$(newPrice).append(newInput);
+
+					$(newRow).append(newName);
+					$(newRow).append(newPrice);
+
+					$(newRow).attr("kelas", columnBuilder[i].uid);
+					$("#form-tambah table tbody").append(newRow);
+				}
+			}
+
+			$("#form-tambah").modal("show");
+			MODE = "edit";
+			return false;
+		});
 
 		
 		$("body").on("click", ".btn-delete-tindakan", function(){
@@ -315,7 +390,7 @@
 			$("#txt").val(me.val()).trigger("change");*/
 		});
 		
-		$("body").on("click", ".btn-edit-tindakan", function() {
+		/*$("body").on("click", ".btn-edit-tindakan", function() {
 			var uid = $(this).attr("id").split("_");
 			uid = uid[uid.length - 1];
 			selectedUID = uid;
@@ -328,7 +403,7 @@
 			
 			$("#form-tambah").modal("show");
 			return false;
-		});
+		});*/
 
 		$("#tambah_master_tindakan").click(function() {
 			$("#form-tambah-tindakan").modal("show");
@@ -339,6 +414,7 @@
 		
 		$("#tambah-tindakan").click(function() {
 			$("#txt_nama").val("");
+			$("#txt_tindakan").removeAttr("disabled");
 
 			//Prepare Kelas
 			$("#form-tambah table tbody").html("");

@@ -1039,7 +1039,7 @@ class Invoice extends Utility {
 	}
 
 	public function get_harga_tindakan($parameter) {
-		$harga = self::$query->select('master_poli_tindakan_penjamin', array(
+		/*$harga = self::$query->select('master_poli_tindakan_penjamin', array(
 			'id',
 			'harga',
 			'uid_poli',
@@ -1061,7 +1061,31 @@ class Invoice extends Utility {
 			$parameter['tindakan'],
 			$parameter['penjamin']
 		))
-		->execute();
+		->execute();*/
+
+		$harga = self::$query->select('master_tindakan_kelas_harga', array(
+			'id',
+			'tindakan as uid_tindakan',
+			'penjamin as uid_penjamin',
+			'kelas',
+			'harga',
+			'created_at',
+			'updated_at'
+		))
+		->where(array(
+			'master_poli_tindakan_penjamin.deleted_at' => 'IS NULL',
+			'AND',
+			'master_poli_tindakan_penjamin.tindakan' => '= ?',
+			'AND',
+			'master_poli_tindakan_penjamin.penjamin' => '= ?',
+			'AND',
+			'master_poli_tindakan_penjamin.kelas' => '= ?'
+		), array(
+			$parameter['tindakan'],
+			$parameter['penjamin'],
+			$parameter['kelas']
+		))
+		->execute(0);
 		return $harga;
 	}
 }
